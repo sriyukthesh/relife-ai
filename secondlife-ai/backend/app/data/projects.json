@@ -1,0 +1,895 @@
+[
+  {
+    "slug": "led-with-button",
+    "title": "Push-button LED light",
+    "difficulty": 1,
+    "estimated_minutes": 15,
+    "description": "The simplest complete circuit: press a button and an LED lights up.",
+    "safety_note": "Never connect an LED to a battery without a series resistor.",
+    "requirements": [
+      {
+        "label": "Battery or supply, 4.5-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 4.5,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "Current-limiting resistor (470 ohm - 2.2 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 2200
+          }
+        }
+      },
+      {
+        "label": "Push button",
+        "category": "button",
+        "qty": 1,
+        "specs": {}
+      }
+    ],
+    "steps": [
+      {
+        "title": "Check your parts",
+        "instruction": "Inspect the LED and resistor for burnt or cracked bodies. If you have a multimeter, confirm the resistor value."
+      },
+      {
+        "title": "Wire the series path",
+        "instruction": "Connect battery plus to the push button, then to the resistor, then to the LED's longer leg (anode)."
+      },
+      {
+        "title": "Close the loop",
+        "instruction": "Connect the LED's shorter leg (cathode) to battery minus."
+      },
+      {
+        "title": "Test",
+        "instruction": "Press the button. If the LED stays dark, flip the LED around; LEDs only work one way."
+      }
+    ]
+  },
+  {
+    "slug": "led-dimmer",
+    "title": "Adjustable LED dimmer",
+    "difficulty": 1,
+    "estimated_minutes": 20,
+    "description": "Turn a knob to change how bright an LED glows.",
+    "safety_note": "Keep the fixed resistor in series so the LED is protected even when the knob is at zero ohms.",
+    "requirements": [
+      {
+        "label": "Battery or supply, 4.5-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 4.5,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "Protection resistor (470 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 1000
+          }
+        }
+      },
+      {
+        "label": "Potentiometer (1 k - 10 k)",
+        "category": "potentiometer",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 1000,
+            "max": 10000
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Identify the pot pins",
+        "instruction": "A potentiometer has 3 pins. You will use the middle pin and one outer pin as a variable resistor."
+      },
+      {
+        "title": "Build the chain",
+        "instruction": "Battery plus to the fixed resistor, then to the potentiometer (outer pin), middle pin to the LED anode."
+      },
+      {
+        "title": "Finish and test",
+        "instruction": "LED cathode to battery minus. Turn the knob slowly; brightness should change. If it never turns off, that is normal for a simple dimmer."
+      }
+    ]
+  },
+  {
+    "slug": "night-light",
+    "title": "Automatic night light",
+    "difficulty": 2,
+    "estimated_minutes": 30,
+    "description": "An LED that switches on by itself when the room gets dark, using an LDR and a transistor.",
+    "safety_note": "Check the transistor pinout from its datasheet before wiring; pin order differs between part numbers.",
+    "requirements": [
+      {
+        "label": "Battery or supply, 4.5-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 4.5,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "Light sensor (LDR)",
+        "category": "ldr",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "NPN transistor",
+        "category": "transistor",
+        "qty": 1,
+        "specs": {
+          "polarity": "npn"
+        }
+      },
+      {
+        "label": "Base resistor (5 k - 47 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 5000,
+            "max": 47000
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "LED resistor (470 ohm - 2.2 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 2200
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Make the light-sensing divider",
+        "instruction": "Connect the base resistor from battery plus to the transistor base. Connect the LDR from the base to battery minus."
+      },
+      {
+        "title": "Wire the LED branch",
+        "instruction": "Battery plus to the LED resistor, then to the LED anode. LED cathode to the transistor collector."
+      },
+      {
+        "title": "Ground the emitter",
+        "instruction": "Connect the transistor emitter to battery minus."
+      },
+      {
+        "title": "Test in light and dark",
+        "instruction": "Cover the LDR with your hand; the LED should turn on. In bright light it should switch off."
+      }
+    ]
+  },
+  {
+    "slug": "buzzer-alarm",
+    "title": "Push-button buzzer alarm",
+    "difficulty": 1,
+    "estimated_minutes": 10,
+    "description": "Press the button and an active buzzer sounds.",
+    "safety_note": "Check that the buzzer's rated voltage covers your battery voltage.",
+    "requirements": [
+      {
+        "label": "Battery, 3-6 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 3,
+            "max": 6
+          }
+        }
+      },
+      {
+        "label": "Active buzzer",
+        "category": "buzzer",
+        "qty": 1,
+        "specs": {
+          "buzzer_type": "active"
+        }
+      },
+      {
+        "label": "Push button",
+        "category": "button",
+        "qty": 1,
+        "specs": {}
+      }
+    ],
+    "steps": [
+      {
+        "title": "Find the polarity",
+        "instruction": "Active buzzers have a plus marking or a longer leg. Plus goes towards the battery side."
+      },
+      {
+        "title": "Wire it",
+        "instruction": "Battery plus to the button, button to the buzzer plus, buzzer minus to battery minus."
+      },
+      {
+        "title": "Test",
+        "instruction": "Press the button; the buzzer should sound. A passive buzzer will not beep on plain DC."
+      }
+    ]
+  },
+  {
+    "slug": "led-flasher",
+    "title": "Two-LED alternating flasher",
+    "difficulty": 3,
+    "estimated_minutes": 45,
+    "description": "A classic transistor astable multivibrator: two LEDs blink alternately with no microcontroller.",
+    "safety_note": "Electrolytic capacitors are polarised. Connect the stripe side towards the lower voltage or they can fail.",
+    "requirements": [
+      {
+        "label": "Battery, 6-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 6,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "NPN transistors",
+        "category": "transistor",
+        "qty": 2,
+        "specs": {
+          "polarity": "npn"
+        }
+      },
+      {
+        "label": "Timing capacitors (10-100 uF, rated 16 V+)",
+        "category": "capacitor",
+        "qty": 2,
+        "specs": {
+          "capacitance_uf": {
+            "min": 10,
+            "max": 100
+          },
+          "voltage_v": {
+            "min": 16
+          }
+        }
+      },
+      {
+        "label": "Base resistors (22 k - 100 k)",
+        "category": "resistor",
+        "qty": 2,
+        "specs": {
+          "resistance_ohm": {
+            "min": 22000,
+            "max": 100000
+          }
+        }
+      },
+      {
+        "label": "Collector resistors (470 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 2,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 1000
+          }
+        }
+      },
+      {
+        "label": "LEDs",
+        "category": "led",
+        "qty": 2,
+        "specs": {}
+      }
+    ],
+    "steps": [
+      {
+        "title": "Build the two transistor stages",
+        "instruction": "Place both transistors with emitters to battery minus. Each LED + collector resistor goes from battery plus to that transistor's collector."
+      },
+      {
+        "title": "Add base resistors",
+        "instruction": "Each base resistor goes from battery plus to its transistor's base."
+      },
+      {
+        "title": "Cross-couple with capacitors",
+        "instruction": "Capacitor 1 from collector 1 to base 2; capacitor 2 from collector 2 to base 1. Mind capacitor polarity."
+      },
+      {
+        "title": "Power up",
+        "instruction": "Connect the battery. The LEDs should alternate. If both stay on, swap one capacitor's connections and check the transistor pinout."
+      }
+    ]
+  },
+  {
+    "slug": "arduino-traffic-light",
+    "title": "Arduino traffic light",
+    "difficulty": 2,
+    "estimated_minutes": 40,
+    "description": "Three LEDs driven by an Arduino board in a red, green, yellow sequence.",
+    "safety_note": "Each LED needs its own resistor. Never connect an LED straight to an Arduino pin.",
+    "requirements": [
+      {
+        "label": "Arduino board (Uno / Nano / Mega)",
+        "category": "microcontroller",
+        "qty": 1,
+        "specs": {
+          "part_number": [
+            "ARDUINO UNO",
+            "ARDUINO NANO",
+            "ARDUINO MEGA"
+          ]
+        }
+      },
+      {
+        "label": "Red LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {
+          "color": "red"
+        }
+      },
+      {
+        "label": "Yellow LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {
+          "color": "yellow"
+        }
+      },
+      {
+        "label": "Green LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {
+          "color": "green"
+        }
+      },
+      {
+        "label": "LED resistors (220 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 3,
+        "specs": {
+          "resistance_ohm": {
+            "min": 220,
+            "max": 1000
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Wire each LED",
+        "instruction": "Connect pins 8, 9 and 10 each through a resistor to the red, yellow and green LED anodes."
+      },
+      {
+        "title": "Common ground",
+        "instruction": "Connect all three LED cathodes to an Arduino GND pin."
+      },
+      {
+        "title": "Upload the sketch",
+        "instruction": "Write a loop that turns red on for 5 s, green for 5 s, then yellow for 2 s, repeating."
+      },
+      {
+        "title": "Test",
+        "instruction": "Power the Arduino over USB and watch the sequence."
+      }
+    ]
+  },
+  {
+    "slug": "darkness-alarm",
+    "title": "Darkness alarm",
+    "difficulty": 2,
+    "estimated_minutes": 30,
+    "description": "A buzzer that sounds when a room or box goes dark.",
+    "safety_note": "Check that the buzzer's rated voltage covers your battery voltage.",
+    "requirements": [
+      {
+        "label": "Battery, 3-6 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 3,
+            "max": 6
+          }
+        }
+      },
+      {
+        "label": "Light sensor (LDR)",
+        "category": "ldr",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "NPN transistor",
+        "category": "transistor",
+        "qty": 1,
+        "specs": {
+          "polarity": "npn"
+        }
+      },
+      {
+        "label": "Base resistor (5 k - 47 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 5000,
+            "max": 47000
+          }
+        }
+      },
+      {
+        "label": "Active buzzer",
+        "category": "buzzer",
+        "qty": 1,
+        "specs": {
+          "buzzer_type": "active"
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Light-sensing divider",
+        "instruction": "Base resistor from battery plus to the transistor base; LDR from the base to battery minus."
+      },
+      {
+        "title": "Buzzer branch",
+        "instruction": "Buzzer plus to battery plus; buzzer minus to the transistor collector. Emitter to battery minus."
+      },
+      {
+        "title": "Test",
+        "instruction": "Cover the LDR; the buzzer should sound. In daylight it should be silent."
+      }
+    ]
+  },
+  {
+    "slug": "blinky-555",
+    "title": "555 timer LED blinker",
+    "difficulty": 2,
+    "estimated_minutes": 35,
+    "description": "The famous 555 timer IC blinking an LED at about 1-2 times per second.",
+    "safety_note": "Check the 555's pin 1 marking (notch or dot) before applying power.",
+    "requirements": [
+      {
+        "label": "Battery, 6-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 6,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "555 timer IC",
+        "category": "ic",
+        "qty": 1,
+        "specs": {
+          "part_number": [
+            "NE555",
+            "NE555P",
+            "LM555",
+            "555",
+            "LMC555"
+          ]
+        }
+      },
+      {
+        "label": "R1 (2.2 k - 10 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 2200,
+            "max": 10000
+          }
+        }
+      },
+      {
+        "label": "R2 (22 k - 100 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 22000,
+            "max": 100000
+          }
+        }
+      },
+      {
+        "label": "Timing capacitor (1-100 uF, rated 16 V+)",
+        "category": "capacitor",
+        "qty": 1,
+        "specs": {
+          "capacitance_uf": {
+            "min": 1,
+            "max": 100
+          },
+          "voltage_v": {
+            "min": 16
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "LED resistor (470 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 1000
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Power pins",
+        "instruction": "Pin 1 to battery minus. Pins 4 and 8 to battery plus."
+      },
+      {
+        "title": "Timing network",
+        "instruction": "R1 from battery plus to pin 7. R2 from pin 7 to pin 6. Join pins 6 and 2 together. Capacitor from pin 6 to battery minus."
+      },
+      {
+        "title": "Output",
+        "instruction": "Pin 3 through the LED resistor to the LED anode; LED cathode to battery minus."
+      },
+      {
+        "title": "Test",
+        "instruction": "Apply power. The LED should blink. A larger capacitor or R2 makes it slower."
+      }
+    ]
+  },
+  {
+    "slug": "delay-light",
+    "title": "Fade-out delay light",
+    "difficulty": 2,
+    "estimated_minutes": 25,
+    "description": "Press a button and an LED lights, then fades out a few seconds after you let go. A capacitor and a transistor do the timing.",
+    "safety_note": "Electrolytic capacitors are polarised: the stripe marks the leg that goes to battery minus. A reversed or under-rated capacitor can burst.",
+    "requirements": [
+      {
+        "label": "Battery or supply, 4.5-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 4.5,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "Push button",
+        "category": "button",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "Timing capacitor (22-470 uF, rated 16 V+)",
+        "category": "capacitor",
+        "qty": 1,
+        "specs": {
+          "capacitance_uf": {
+            "min": 22,
+            "max": 470
+          },
+          "voltage_v": {
+            "min": 16
+          }
+        }
+      },
+      {
+        "label": "Base resistor (4.7 k - 47 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 4700,
+            "max": 47000
+          }
+        }
+      },
+      {
+        "label": "NPN transistor",
+        "category": "transistor",
+        "qty": 1,
+        "specs": {
+          "polarity": "npn"
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "LED resistor (470 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 1000
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Check your parts",
+        "instruction": "Look for burnt or cracked bodies. Find the stripe on the capacitor: that leg will go to battery minus. Check the transistor's pin order from its part number."
+      },
+      {
+        "title": "Place the transistor",
+        "instruction": "Put the NPN transistor on the breadboard. Connect its emitter to battery minus."
+      },
+      {
+        "title": "Wire the LED path",
+        "instruction": "Connect battery plus to the LED resistor, then to the LED's longer leg. Connect the LED's shorter leg to the transistor's collector."
+      },
+      {
+        "title": "Wire the timing path",
+        "instruction": "Connect battery plus through the push button to one spot on the breadboard. From that spot, connect the capacitor's positive leg and the base resistor. Connect the capacitor's striped leg to battery minus, and the other end of the base resistor to the transistor's base."
+      },
+      {
+        "title": "Test",
+        "instruction": "Hold the button for two seconds and let go. The LED should stay on for a few seconds, then fade out. If it never turns on, check the transistor pins and the capacitor direction."
+      }
+    ]
+  },
+  {
+    "slug": "continuity-tester",
+    "title": "Continuity and part tester",
+    "difficulty": 1,
+    "estimated_minutes": 10,
+    "description": "A battery, resistor and LED with two probe wires. Touch the probes to a wire, fuse or resistor-free path and the LED lights. Handy for testing salvaged parts before you trust them.",
+    "safety_note": "Only test parts that are not connected to any power source. Never touch the probes to wall-outlet wiring.",
+    "requirements": [
+      {
+        "label": "Battery or supply, 4.5-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 4.5,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "LED resistor (470 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 1000
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Check your parts",
+        "instruction": "Make sure the LED and resistor are not cracked or burnt."
+      },
+      {
+        "title": "Build the loop",
+        "instruction": "Connect battery plus to the resistor, then to the LED's longer leg. Leave the LED's shorter leg free and attach a probe wire to it."
+      },
+      {
+        "title": "Add the second probe",
+        "instruction": "Attach a second probe wire to battery minus."
+      },
+      {
+        "title": "Test the tester",
+        "instruction": "Touch the two probe tips together. The LED should light. If not, flip the LED around."
+      },
+      {
+        "title": "Use it",
+        "instruction": "Touch the probes to the two ends of a wire or a switch. A lit LED means current flows through it. Remember it only shows continuity; it does not measure a part's value."
+      }
+    ]
+  },
+  {
+    "slug": "arduino-pot-dimmer",
+    "title": "Arduino knob-controlled LED",
+    "difficulty": 2,
+    "estimated_minutes": 30,
+    "description": "Turn a potentiometer to change an LED's brightness, controlled by an Arduino.",
+    "safety_note": "Always use a resistor in series with the LED. Power the Arduino from USB.",
+    "requirements": [
+      {
+        "label": "Arduino board (Uno / Nano / Mega)",
+        "category": "microcontroller",
+        "qty": 1,
+        "specs": {
+          "part_number": [
+            "ARDUINO UNO",
+            "ARDUINO NANO",
+            "ARDUINO MEGA"
+          ]
+        }
+      },
+      {
+        "label": "Potentiometer (1 k - 100 k)",
+        "category": "potentiometer",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 1000,
+            "max": 100000
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      },
+      {
+        "label": "LED resistor (220 ohm - 1 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 220,
+            "max": 1000
+          }
+        }
+      }
+    ],
+    "steps": [
+      {
+        "title": "Wire the knob",
+        "instruction": "Connect the potentiometer's outer legs to 5 volts and ground. Connect the middle leg to analog pin A0."
+      },
+      {
+        "title": "Wire the LED",
+        "instruction": "Connect pin 9 through the resistor to the LED's longer leg. Connect the shorter leg to ground."
+      },
+      {
+        "title": "Upload the sketch",
+        "instruction": "Read the knob with analogRead on A0, divide it by four, and send the result to pin 9 with analogWrite. Repeat this in the loop."
+      },
+      {
+        "title": "Test",
+        "instruction": "Turn the knob. The LED should dim and brighten smoothly. If it does not change, check the middle leg connection."
+      }
+    ]
+  },
+  {
+    "slug": "protected-led",
+    "title": "Reverse-polarity protected LED",
+    "difficulty": 1,
+    "estimated_minutes": 15,
+    "description": "Add a diode so connecting the battery the wrong way cannot hurt the circuit. A small lesson in why diodes are used.",
+    "safety_note": "Never connect an LED to a battery without a series resistor. Use only low-voltage batteries.",
+    "requirements": [
+      {
+        "label": "Battery or supply, 4.5-9 V",
+        "category": "battery",
+        "qty": 1,
+        "specs": {
+          "voltage_v": {
+            "min": 4.5,
+            "max": 9
+          }
+        }
+      },
+      {
+        "label": "Silicon diode (1N4001-1N4007, 1N4148)",
+        "category": "diode",
+        "qty": 1,
+        "specs": {
+          "part_number": [
+            "1N4001",
+            "1N4002",
+            "1N4003",
+            "1N4004",
+            "1N4005",
+            "1N4006",
+            "1N4007",
+            "1N4148"
+          ]
+        }
+      },
+      {
+        "label": "LED resistor (470 ohm - 2.2 k)",
+        "category": "resistor",
+        "qty": 1,
+        "specs": {
+          "resistance_ohm": {
+            "min": 470,
+            "max": 2200
+          }
+        }
+      },
+      {
+        "label": "Any LED",
+        "category": "led",
+        "qty": 1,
+        "specs": {}
+      }
+    ],
+    "steps": [
+      {
+        "title": "Find the diode's stripe",
+        "instruction": "The stripe marks the cathode. Current flows only toward the striped end."
+      },
+      {
+        "title": "Build the series path",
+        "instruction": "Connect battery plus to the diode's unstriped end. Connect the striped end to the resistor, then to the LED's longer leg. Connect the LED's shorter leg to battery minus."
+      },
+      {
+        "title": "Test normally",
+        "instruction": "The LED should light, slightly dimmer than without the diode."
+      },
+      {
+        "title": "Test the protection",
+        "instruction": "Swap the battery wires for a moment. The LED stays dark and nothing is harmed. Swap them back."
+      }
+    ]
+  }
+]

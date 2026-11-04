@@ -1,0 +1,7 @@
+filename,category,label,resistance_ohm,capacitance_uf,voltage_v,color,polarity,buzzer_type,part_number,tags
+photo01.jpg,resistor,220 ohm resistor,220,,,,,,,easy
+photo02.jpg,led,Red LED,,,,red,,,,easy
+photo03.jpg,capacitor,47uF 25V electrolytic,,47,25,,,,,easy
+photo04.jpg,transistor,2N2222,,,,,npn,,2N2222,hard;blurry
+photo05.jpg,resistor,10k resistor,10000,,,,,,,easy
+photo05.jpg,led,Green LED,,,,green,,,,easy
