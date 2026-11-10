@@ -117,3 +117,22 @@ class Payment(Base):
     address: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, default=dict)
     lines: Mapped[list[Any]] = mapped_column(JSON_TYPE, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class PayPalCheckout(Base):
+    """Server-owned snapshot for one PayPal order, before it becomes a paid receipt."""
+    __tablename__ = "paypal_checkouts"
+    __table_args__ = (UniqueConstraint("user_id", "idempotency_key", name="uq_paypal_checkout_user_key"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    idempotency_key: Mapped[str] = mapped_column(String(64))
+    paypal_order_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
+    status: Mapped[str] = mapped_column(String(16), default="CREATING")
+    currency: Mapped[str] = mapped_column(String(3))
+    subtotal_cents: Mapped[int] = mapped_column(Integer)
+    delivery_cents: Mapped[int] = mapped_column(Integer)
+    total_cents: Mapped[int] = mapped_column(Integer)
+    address: Mapped[dict[str, Any]] = mapped_column(JSON_TYPE, default=dict)
+    lines: Mapped[list[Any]] = mapped_column(JSON_TYPE, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)

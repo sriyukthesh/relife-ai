@@ -1,0 +1,4 @@
+**/.env
+!.env.example
+secondlife-ai/bryntum-ui/node_modules/
+secondlife-ai/backend/**/__pycache__/

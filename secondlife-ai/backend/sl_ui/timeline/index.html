@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ReLife AI: Autonomous Circular Project Intelligence</title>
+  <script type="module" crossorigin src="./assets/main-BuN9HmDK.js"></script>
+  <link rel="modulepreload" crossorigin href="./assets/modulepreload-polyfill-B5Qt9EMX.js">
+  <link rel="stylesheet" crossorigin href="./assets/main-DN65Iaag.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>ReLife AI <span class="tag">Autonomous Circular Project Intelligence</span></h1>
+    <p class="sub">Your confirmed inventory becomes projects. When a delivery slips, a part fails, or the deadline moves, the agent re-plans the timeline.
+        Supplier delivery times are <b>simulated</b>. ReLife PayPal checkout is only for ReLife marketplace listings, not external supplier links.</p>
+      <nav><a href="/">Return to ReLife AI</a></nav>
+  </header>
+  <div id="msg" class="note" role="status"></div>
+
+  <section id="cards" class="cards"></section>
+
+  <section>
+    <h2>1. Zero-waste recombination</h2>
+    <div class="row">
+      <label>Budget (USD) <input id="budget" type="number" min="1" max="500" value="25"></label>
+      <label>Deadline (days from today) <input id="deadline" type="number" min="3" max="30" value="10"></label>
+      <button id="build">Build best plan from my inventory</button>
+    </div>
+    <div id="options" class="note">Build a plan to see ranked project combinations.</div>
+  </section>
+
+  <section>
+    <h2>2. Self-healing project timeline <span class="pill">Bryntum Gantt</span></h2>
+    <iframe id="gantt" src="gantt.html" title="Bryntum Gantt"></iframe>
+    <h3>Break something and watch the agent recover</h3>
+    <div class="row">
+      <select id="delay-part"></select>
+      <label>days <input id="delay-days" type="number" min="1" max="30" value="7" style="width:4.5rem"></label>
+      <button id="do-delay" class="warn">Delay this delivery</button>
+    </div>
+    <div class="row">
+      <select id="fail-part"></select>
+      <button id="do-fail" class="warn">Mark 1 unit as failed</button>
+      <button id="do-deadline" class="warn">Tighten deadline (-3 days)</button>
+      <button id="do-budget" class="warn">Cut budget (-30%)</button>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Multi-project resource optimizer <span class="pill">Bryntum Scheduler</span></h2>
+    <iframe id="scheduler" src="scheduler.html" title="Bryntum Scheduler" class="short"></iframe>
+    <div class="row"><button id="optimize" class="secondary">Optimize all projects across shared resources</button></div>
+  </section>
+
+  <section>
+    <h2>4. Supplier purchases linked to the timeline</h2>
+    <div id="purchases" class="note"></div>
+    <div class="note">Supplier purchases open on the supplier's site. Confirm them there, then record the purchase here to start its simulated delivery clock.</div>
+  </section>
+
+  <section>
+    <h2>5. Agent decision log</h2>
+    <div id="log"></div>
+  </section>
+</main>
+</body>
+</html>

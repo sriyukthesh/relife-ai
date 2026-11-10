@@ -1,13 +1,13 @@
-export const num = (n: number) => n.toLocaleString("en-IN");
+export const num = (n: number) => n.toLocaleString("en-US");
 
 export function weight(g: number): string {
   if (g < 1000) return `${Math.round(g)} g`;
   const kg = g / 1000;
-  return `${kg.toLocaleString("en-IN", { maximumFractionDigits: kg < 10 ? 2 : 1 })} kg`;
+  return `${kg.toLocaleString("en-US", { maximumFractionDigits: kg < 10 ? 2 : 1 })} kg`;
 }
 
-export function rupees(paise: number): string {
-  return `₹${(paise / 100).toLocaleString("en-IN", { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+export function dollars(cents: number): string {
+  return `\$${(cents / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function timeAgo(iso: string, now = Date.now()): string {

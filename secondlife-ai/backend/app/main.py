@@ -6,7 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import catalog, models  # noqa: F401  (models import registers tables)
 from .config import get_settings
 from .database import Base, engine
-from .routers import auth, builds, checkout, copilot, inspect, inventory, marketplace, projects, salvage, stats, workbench
+from .routers import auth, builds, checkout, copilot, inspect, inventory, marketplace, parts, projects, salvage, stats, workbench
+from timeline.router import mount_timeline_ui, router as timeline_router
 
 
 @asynccontextmanager
@@ -33,9 +34,12 @@ app.include_router(builds.router)
 app.include_router(copilot.router)
 app.include_router(marketplace.router)
 app.include_router(checkout.router)
+app.include_router(parts.router)
 app.include_router(stats.router)
 app.include_router(salvage.router)
 app.include_router(workbench.router)
+app.include_router(timeline_router)
+mount_timeline_ui(app)
 
 
 @app.get("/health")

@@ -131,32 +131,10 @@ def cancel_listing(listing_id: int, db: Session = Depends(get_db), user: User = 
     db.commit()
 
 
-@router.post("/listings/{listing_id}/buy", response_model=OrderOut, status_code=status.HTTP_201_CREATED)
+@router.post("/listings/{listing_id}/buy", status_code=status.HTTP_410_GONE)
 def buy(listing_id: int, body: BuyIn, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    """Legacy one-click purchase kept for the API and tests. The app now uses the cart and
-    POST /checkout/pay (address, payment method, receipt), which never pays by accident."""
-    l = db.scalar(select(Listing).where(Listing.id == listing_id).with_for_update())
-    if l is None or l.status != "active" or l.quantity <= 0:
-        raise HTTPException(status.HTTP_409_CONFLICT, "This listing is no longer available")
-    if l.seller_id == user.id:
-        raise HTTPException(status.HTTP_400_BAD_REQUEST, "You cannot buy your own listing")
-    if body.quantity > l.quantity:
-        raise HTTPException(status.HTTP_409_CONFLICT, f"Only {l.quantity} left")
-
-    l.quantity -= body.quantity
-    if l.quantity == 0:
-        l.status = "sold"
-    order = Order(buyer_id=user.id, listing_id=l.id, quantity=body.quantity,
-                  total_cents=l.price_cents * body.quantity, status="completed")
-    db.add(order)
-    add_stock(db, user.id, category=l.category, label=l.label, specs=dict(l.specs),
-              quantity=body.quantity, condition=rules.buyer_condition(l.condition), source="marketplace")
-    db.commit()  # listing, order and inventory change together or not at all
-    return OrderOut(
-        id=order.id, listing_id=l.id, label=l.label, quantity=order.quantity,
-        total_cents=order.total_cents, status=order.status, created_at=order.created_at,
-        note="The parts are marked unverified: test them before use.",
-    )
+    """Prevent legacy purchases from bypassing PayPal capture."""
+    raise HTTPException(status.HTTP_410_GONE, "Direct purchases are disabled. Use the PayPal checkout.")
 
 
 @router.get("/orders", response_model=list[OrderOut])

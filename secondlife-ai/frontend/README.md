@@ -9,7 +9,9 @@
 Backend must be running (`uvicorn app.main:app --reload`) with CORS_ORIGINS including http://localhost:5173.
 Demo login: demo@secondlife.ai / demo1234 (seller: seller@secondlife.ai / seller1234).
 
-Screens: Scan (upload/camera -> part proposals with boxes -> confirm/correct each) · My parts · Build with what I have
+Screens: Scan (upload/camera -> part proposals with boxes -> confirm/correct each) · My parts · Data tables
+(editable inventory, marketplace listings, and order history with filtering and CSV export) · Project timeline
+(inventory-based planning, recovery, Bryntum Gantt and Scheduler) · Build with what I have
 (ranked projects, missing parts, marketplace offers) · Guided build (steps read aloud, copilot Q&A) · Marketplace.
 
 Notes
@@ -32,4 +34,23 @@ Notes
 - Photo input to Copilot goes to Muse Spark through `POST /copilot/chat`; the model is told it cannot certify parts.
 
 ## v0.5: cart and checkout
-Marketplace and "missing parts" now use **Add to cart**. The Cart page (button with item badge, top bar on phones and left rail on desktop) is a 4-step checkout: Cart, Delivery address, Payment method (UPI, demo card, net banking), Review and **Pay ₹X**. On success the parts appear in My parts as untested and a receipt is saved under "Your orders". It is a simulation: no real money, and the UI tells users never to type real card or UPI PIN details.
+Marketplace and "missing parts" use **Add to cart**. The Cart page is a four-step checkout: Cart, Delivery address, PayPal sandbox, and Review. PayPal handles payment details; on a verified sandbox capture, the parts appear in My parts as untested and a receipt is saved under "Your orders". Sandbox payments do not move live money.
+
+Configure `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` and `PAYPAL_CURRENCY` in the backend environment using PayPal sandbox app credentials. The app prices in cents and uses a USD sandbox account; the client secret stays on the backend, and the frontend receives only the public client ID.
+
+## Project timeline (Bryntum trial)
+
+The signed-in **Project timeline** screen plans from that user's confirmed, usable inventory and stores its plan per account. It includes project recombination, delay/failure recovery, resource optimization, a Bryntum Gantt, and a Bryntum Scheduler.
+
+Build the bundled Bryntum UI when deploying the backend:
+
+```powershell
+cd bryntum-ui
+npm install
+npm run setup:bryntum
+npm run build
+```
+
+The build is written to `backend/sl_ui/timeline` and served by FastAPI at `/timeline-ui/`. The project-level `vite.config.ts` proxies this route and the timeline API to the backend for local development. Bryntum uses its trial packages; use a valid Bryntum license for production use if required by your plan.
+
+External supplier prices may use Channel3; without that integration the UI identifies its built-in sample pricing as cached demo data. Supplier delivery times are simulated. Supplier purchases are **not** added to ReLife's PayPal checkout: open the supplier link, complete the purchase there, then explicitly mark it ordered to start its simulated delivery clock. PayPal remains reserved for ReLife marketplace listings.

@@ -59,6 +59,28 @@ export interface Listing {
 export interface Order { id: number; listing_id: number; label: string; quantity: number; total_cents: number; status: string; created_at: string; note: string }
 export interface PartOffers { label: string; category: string; quantity: number; constraints: Record<string, unknown>; offers: Listing[] }
 export interface ProjectOffers { project_slug: string; parts: PartOffers[] }
+export interface Channel3Product {
+  product_id: string | number | null;
+  title: string;
+  part: string;
+  price: number;
+  currency: "USD";
+  merchant: string | null;
+  url: string;
+  condition: string | null;
+  image: string | null;
+  qty: number;
+  line_total: number;
+  data_source: "channel3" | "cache";
+}
+export interface Channel3Plan {
+  budget_usd: number;
+  cart: Channel3Product[];
+  total_usd: number;
+  covered_by_salvage: { part: string; qty: number }[];
+  unavailable: { part: string; qty: number }[];
+  skipped_over_budget: { part: string; qty: number; cost: number }[];
+}
 
 // ---- dashboard impact ----
 export interface ImpactTotals { parts_reused: number; parts_resold: number; diverted_g_low: number; diverted_g_high: number }
@@ -66,7 +88,7 @@ export interface ImpactStats {
   generated_at: string;
   platform: ImpactTotals & {
     builds_completed: number; makers: number; parts_in_circulation: number;
-    active_listings: number; marketplace_volume_paise: number;
+    active_listings: number; marketplace_volume_cents: number;
   };
   me: ImpactTotals & { builds_completed: number; parts_in_stock: number; parts_bought: number; active_listings: number };
   weekly: { week_start: string; reused: number; resold: number }[];
@@ -124,7 +146,7 @@ export interface CartPreview {
   free_delivery_from_cents: number; ok: boolean;
 }
 export interface Address { full_name: string; phone: string; line1: string; city: string; pincode: string }
-export type PayMethod = "upi" | "card" | "netbanking";
+export type PayMethod = "upi" | "card" | "netbanking" | "paypal";
 export interface PaymentLine { order_id: number; listing_id: number; label: string; quantity: number; unit_cents: number; line_cents: number; seller_name: string }
 export interface Payment {
   id: number; reference: string; method: PayMethod; method_label: string; status: string;

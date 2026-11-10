@@ -44,7 +44,7 @@ Run order: `docker compose up -d` -> `cd backend && pip install -r requirements.
 | Build with What I Have | `GET /recommendations` |
 | Guided build | `POST /builds`, `GET /builds/current`, `POST /builds/{id}/next|previous|finish` |
 | Copilot | `POST /copilot/ask` |
-| Marketplace | `GET/POST /marketplace/listings`, `DELETE /marketplace/listings/{id}`, `POST /marketplace/listings/{id}/buy`, `GET /marketplace/orders`, `GET /marketplace/for-project/{slug}` |
+| Marketplace | `GET/POST /marketplace/listings`, `DELETE /marketplace/listings/{id}`, `GET /marketplace/orders`, `GET /marketplace/for-project/{slug}` |
 
 Checks, in this order:
 1. `pytest`
@@ -88,12 +88,16 @@ Tests: `pytest` (new: `test_impact.py`, `test_pricing.py`, additions to `test_co
 | Endpoint | Purpose |
 |---|---|
 | `POST /checkout/preview` | prices a cart from the CURRENT listings (availability, own-listing and sold-out checks, delivery fee) |
-| `POST /checkout/pay` | payment: address + payment method name + idempotency key; creates orders, adds parts to the buyer's inventory (unverified) and saves a receipt |
+| `GET /checkout/paypal/config` | returns sandbox availability, public client ID and currency to signed-in users |
+| `POST /checkout/paypal/orders` | creates an idempotent PayPal sandbox order using server-priced listings |
+| `POST /checkout/paypal/orders/{id}/capture` | captures only after revalidating stock and price; verifies PayPal's completed status, amount and currency before creating orders, inventory and receipt |
 | `GET /checkout/payments` | the user's receipts |
 
-- New table `payments` (created automatically; no existing table is altered). No card or UPI details are sent or stored: only the method name.
-- Delivery fee (₹40, free from ₹300) is a made-up demo value in `services/checkout.py`.
-- A retry with the same `idempotency_key` returns the same receipt, so a double click or network retry never pays twice.
-- `simulate_decline: true` returns HTTP 402 and changes nothing (demo of a failed payment).
-- The old one-click `POST /marketplace/listings/{id}/buy` still exists for the API but the app no longer uses it.
-- Tests: `tests/test_checkout.py`.
+- Set `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET` and `PAYPAL_CURRENCY` in `backend/.env` from a PayPal sandbox app. PayPal currency is fixed to USD; use a USD sandbox account. The integration is sandbox-only and the client secret never reaches the browser.
+- Set `CHANNEL3_API_KEY` in `backend/.env` to enable the Channel3 external-parts search on incomplete project recommendations. Searches use the signed-in user's server-calculated missing parts and salvageable inventory; product links open the seller's checkout directly. Channel3 offers are not part of ReLife's PayPal checkout, which only supports ReLife marketplace listings.
+- New tables `payments` and `paypal_checkouts` are created automatically; no existing table is altered. Payment details are entered only on PayPal.
+- Delivery fee ($40, free from $300) is a made-up demo value in `services/checkout.py`.
+- The old simulated `POST /checkout/pay` endpoint now returns HTTP 410; checkout requires PayPal sandbox approval and server-side capture.
+- PayPal create and capture calls use deterministic idempotency keys; receipt creation and inventory changes commit together.
+- The legacy `POST /marketplace/listings/{id}/buy` endpoint now returns HTTP 410 so purchases cannot bypass PayPal capture.
+- Tests: `tests/test_checkout.py` and `tests/test_paypal.py`.

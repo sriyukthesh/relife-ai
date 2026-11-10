@@ -73,7 +73,7 @@ def impact_stats(db: Session = Depends(get_db), user: User = Depends(get_current
         select(func.count(Listing.id)).where(Listing.status == "active", Listing.seller_id == user.id)
     ) or 0
     makers = db.scalar(select(func.count(User.id))) or 0
-    volume_paise = db.scalar(select(func.coalesce(func.sum(Order.total_cents), 0)).where(Order.status == "completed")) or 0
+    volume_cents = db.scalar(select(func.coalesce(func.sum(Order.total_cents), 0)).where(Order.status == "completed")) or 0
     demo_accounts = db.scalar(select(func.count(User.id)).where(User.email.like(DEMO_EMAIL_PATTERN))) or 0
 
     # --- recent activity (other makers are anonymous) ---
@@ -101,7 +101,7 @@ def impact_stats(db: Session = Depends(get_db), user: User = Depends(get_current
             "makers": makers,
             "parts_in_circulation": int(inv_qty) + int(act_qty),
             "active_listings": int(act_count),
-            "marketplace_volume_paise": int(volume_paise),
+            "marketplace_volume_cents": int(volume_cents),
         },
         "me": {
             **t_me,

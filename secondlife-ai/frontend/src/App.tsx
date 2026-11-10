@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { api, hasToken, setToken } from "./api";
 import CopilotPanel from "./components/CopilotPanel";
 import { CartProvider, useCart } from "./cart/CartContext";
@@ -15,6 +15,20 @@ import Recommend from "./pages/Recommend";
 import Scan from "./pages/Scan";
 import Workbench from "./pages/Workbench";
 import type { Catalog, User } from "./types";
+import type { ListingRow } from "./grid/dataSources";
+
+const DataGrids = lazy(() => import("./pages/DataGrids"));
+const Timeline = lazy(() => import("./pages/Timeline"));
+
+function DataGridsPage({ refreshKey }: { refreshKey: number }) {
+  const cart = useCart();
+  const addToCart = (listing: ListingRow) => cart.add(listing.id, 1);
+  return (
+    <Suspense fallback={<p className="text-sm text-stone-500">Loading data tables…</p>}>
+      <DataGrids refreshKey={refreshKey} onAddToCart={addToCart} />
+    </Suspense>
+  );
+}
 
 function CartButton({ onClick, active, className = "", label }: { onClick: () => void; active?: boolean; className?: string; label?: string }) {
   const { count } = useCart();
@@ -67,7 +81,7 @@ export default function App() {
   if (!user) return <Login onLogin={(u) => { setUser(u); setTab("dashboard"); setTabHistory(["dashboard"]); }} />;
 
   const openCopilot = () => setCopilotOpen(true);
-  const wide = tab === "dashboard" || tab === "cart";
+  const wide = tab === "dashboard" || tab === "cart" || tab === "grids" || tab === "timeline";
 
   return (
     <CartProvider userId={user.id} onOpenCart={() => go("cart")}>
@@ -124,6 +138,12 @@ export default function App() {
               {tab === "workbench" && <Workbench catalog={catalog} onChanged={bump} />}
               {tab === "market" && <Market onChanged={bump} />}
             </div>
+            {tab === "grids" && <DataGridsPage refreshKey={partsKey} />}
+            {tab === "timeline" && (
+              <Suspense fallback={<p className="text-sm text-stone-500">Loading project timeline…</p>}>
+                <Timeline />
+              </Suspense>
+            )}
           </main>
         )}
         <footer className="mt-12 text-center text-xs text-stone-500">
@@ -132,7 +152,7 @@ export default function App() {
       </div>
 
       {/* Mobile bottom tabs */}
-      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-7 border-t border-stone-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <nav aria-label="Main" className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-9 border-t border-stone-200 bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
         {NAV.map(({ tab: t, short, Icon }) => (
           <button key={t} onClick={() => go(t)} aria-current={tab === t ? "page" : undefined}
             className={`flex flex-col items-center gap-0.5 py-2 text-[11px] ${tab === t ? "font-medium text-emerald-700" : "text-stone-500"}`}>

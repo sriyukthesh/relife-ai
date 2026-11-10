@@ -2,16 +2,15 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { api, ApiError } from "../api";
 import { useCart } from "../cart/CartContext";
 import { IconCart, IconCheck, IconLock, IconTrash } from "../components/Icons";
+import PayPalButtons from "../components/PayPalButtons";
 import { ConditionBadge, errText, ErrorBanner, money, Notice, specLine } from "../components/ui";
 import type { Tab } from "../nav";
-import type { Address, CartPreview, PayMethod, Payment } from "../types";
+import type { Address, CartPreview, Payment } from "../types";
 
 type Step = "cart" | "address" | "payment" | "review" | "done";
 const STEPS: { id: Step; label: string }[] = [
-  { id: "cart", label: "Cart" }, { id: "address", label: "Delivery" }, { id: "payment", label: "Payment" }, { id: "review", label: "Review & pay" },
+  { id: "cart", label: "Cart" }, { id: "address", label: "Delivery" }, { id: "payment", label: "PayPal" }, { id: "review", label: "Review & pay" },
 ];
-const BANKS = ["Demo National Bank", "Demo Co-operative Bank", "Demo Small Finance Bank"];
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const newKey = () => (typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : `k${Date.now()}${Math.random().toString(16).slice(2)}`);
 const EMPTY_ADDR: Address = { full_name: "", phone: "", line1: "", city: "", pincode: "" };
 
@@ -69,13 +68,9 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
   });
   const [addrErr, setAddrErr] = useState<Partial<Record<keyof Address, string>>>({});
   const [saveAddr, setSaveAddr] = useState(true);
-  const [method, setMethod] = useState<PayMethod>("upi");
-  const [upi, setUpi] = useState("maker@demobank");
-  const [bank, setBank] = useState(BANKS[0]);
-  const [decline, setDecline] = useState(false);
   const [paying, setPaying] = useState(false);
-  const [phase, setPhase] = useState(0);
   const [failure, setFailure] = useState<string | null>(null);
+  const [canRestartCheckout, setCanRestartCheckout] = useState(false);
   const [receipt, setReceipt] = useState<Payment | null>(null);
   const [history, setHistory] = useState<Payment[]>([]);
   const keyRef = useRef(newKey());
@@ -108,31 +103,48 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
     setAddrErr(e);
     return Object.keys(e).length === 0;
   };
-  const paymentOk = method !== "upi" || /^[\w.\-]{2,}@[A-Za-z]{2,}$/.test(upi.trim());
+  const finishPayment = useCallback((value: Payment) => {
+    if (saveAddr) { try { localStorage.setItem(`sl-addr-${userId}`, JSON.stringify(addr)); } catch { /* ignore */ } }
+    keyRef.current = newKey();
+    setReceipt(value);
+    setStep("done");
+    cart.clear();
+    onChanged();
+    loadHistory();
+  }, [addr, cart.clear, loadHistory, onChanged, saveAddr, userId]);
 
-  const pay = async () => {
-    if (!preview?.ok || paying) return;
-    setPaying(true); setFailure(null); setPhase(0);
-    const timer = window.setInterval(() => setPhase((p) => Math.min(p + 1, 2)), 700);
-    const t0 = Date.now();
-    const res = await api.pay({
-      lines: preview.lines.map((l) => ({ listing_id: l.listing_id, quantity: l.quantity })),
+  const createPayPalOrder = useCallback(async () => {
+    if (!preview?.ok) throw new Error("Please review your cart before paying.");
+    const result = await api.createPayPalOrder({
+      lines: preview.lines.map((line) => ({ listing_id: line.listing_id, quantity: line.quantity })),
       address: { ...addr, full_name: addr.full_name.trim(), line1: addr.line1.trim(), city: addr.city.trim() },
-      method, idempotency_key: keyRef.current, simulate_decline: decline,
-    }).then((v) => ({ ok: true as const, v }), (e: unknown) => ({ ok: false as const, e }));
-    await sleep(Math.max(0, 2100 - (Date.now() - t0))); // let the "processing" screen be seen
-    window.clearInterval(timer);
-    setPaying(false);
-    if (res.ok) {
-      if (saveAddr) { try { localStorage.setItem(`sl-addr-${userId}`, JSON.stringify(addr)); } catch { /* ignore */ } }
-      keyRef.current = newKey();
-      setReceipt(res.v); setStep("done"); cart.clear(); onChanged(); loadHistory();
-    } else {
-      // A definite answer from the server ends this attempt; a network failure keeps the key so a retry cannot pay twice.
-      if (res.e instanceof ApiError) { keyRef.current = newKey(); if (res.e.status === 409) refresh(); }
-      setFailure(errText(res.e)); setStep("review");
+      idempotency_key: keyRef.current,
+    });
+    setCanRestartCheckout(false);
+    return result.paypal_order_id;
+  }, [addr, preview]);
+
+  const capturePayPalOrder = useCallback(async (orderId: string) => {
+    setPaying(true);
+    setFailure(null);
+    try {
+      finishPayment(await api.capturePayPalOrder(orderId));
+    } catch (e) {
+      if (e instanceof ApiError && e.status === 409) {
+        refresh();
+        const detail = typeof e.detail === "string" ? e.detail : "";
+        setCanRestartCheckout(detail.includes("Review your cart and start checkout again"));
+      }
+      setFailure(errText(e));
+    } finally {
+      setPaying(false);
     }
-  };
+  }, [finishPayment, refresh]);
+
+  const paypalError = useCallback((e: unknown) => {
+    if (e instanceof ApiError && e.status === 409) setCanRestartCheckout(true);
+    setFailure(errText(e));
+  }, []);
 
   // ---------- success ----------
   if (step === "done" && receipt) {
@@ -140,11 +152,11 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="space-y-2 text-center">
           <div className="mx-auto grid h-16 w-16 animate-rise place-items-center rounded-full bg-emerald-600 text-white"><IconCheck size={34} /></div>
-          <h1 className="page-title">Payment successful</h1>
+          <h1 className="page-title">Sandbox payment successful</h1>
           <p className="text-stone-700">{money(receipt.total_cents)} paid with {receipt.method_label}</p>
           <p className="text-sm text-stone-500">Order reference <span className="font-medium tnum text-stone-800">{receipt.reference}</span> · {new Date(receipt.created_at).toLocaleString()}</p>
         </div>
-        <Notice>The parts are now in My parts, marked untested. Test them before you rely on them. In this demo no real money moved and nothing is shipped.</Notice>
+        <Notice>The parts are now in My parts, marked untested. This sandbox payment moved no real money, and nothing is shipped.</Notice>
         <section className="border-t-2 border-ink pt-3">
           <h2 className="mb-3 font-display text-lg font-bold">What you bought</h2>
           <ul className="divide-y divide-stone-200 text-sm">
@@ -172,8 +184,8 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
   const cta =
     step === "cart" ? <button className="btn-primary w-full" disabled={!canProceed} onClick={() => setStep("address")}>Proceed to delivery</button>
     : step === "address" ? <button className="btn-primary w-full" onClick={() => validateAddr() && setStep("payment")}>Continue to payment</button>
-    : step === "payment" ? <button className="btn-primary w-full" disabled={!paymentOk} onClick={() => setStep("review")}>Review order</button>
-    : <button className="btn-primary w-full !py-3 text-base" disabled={!canProceed || paying} onClick={pay}><IconLock size={16} /> Pay {money(preview?.total_cents ?? 0)}</button>;
+    : step === "payment" ? <button className="btn-primary w-full" onClick={() => setStep("review")}>Review order</button>
+    : <p className="text-sm text-stone-600">Use the PayPal button to complete your sandbox payment.</p>;
 
   return (
     <div className="space-y-6">
@@ -254,47 +266,15 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
                   ))}
                 </div>
                 <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={saveAddr} onChange={(e) => setSaveAddr(e.target.checked)} /> Save this address on this device</label>
-                <button className="btn-ghost" onClick={() => setStep("cart")}>← Back to cart</button>
+                <button className="btn-ghost" onClick={() => { keyRef.current = newKey(); setStep("cart"); }}>← Back to cart</button>
               </section>
             )}
 
             {step === "payment" && (
               <section className="space-y-4">
-                <h2 className="font-display text-xl font-bold">Payment method</h2>
-                <Notice>Never type real card, UPI PIN or bank details here. They are not needed and not accepted.</Notice>
-                <div className="space-y-3" role="radiogroup" aria-label="Payment method">
-                  {([["upi", "UPI", "Pay with any UPI app"], ["card", "Credit / debit card", "Demo card, nothing to type"], ["netbanking", "Net banking", "Choose a demo bank"]] as [PayMethod, string, string][]).map(([id, title, sub]) => (
-                    <div key={id} className={`rounded-xl border p-4 ${method === id ? "border-emerald-600 bg-emerald-50" : "border-stone-200 bg-white"}`}>
-                      <label className="flex cursor-pointer items-center gap-3">
-                        <input type="radio" name="method" checked={method === id} onChange={() => setMethod(id)} />
-                        <span><span className="block font-medium">{title}</span><span className="block text-xs text-stone-500">{sub}</span></span>
-                      </label>
-                      {method === id && id === "upi" && (
-                        <label className="mt-3 block text-sm">UPI ID (demo)
-                          <input className={`input mt-1 max-w-xs ${paymentOk ? "" : "!border-red-400"}`} value={upi} onChange={(e) => setUpi(e.target.value)} placeholder="name@demobank" />
-                          {!paymentOk && <span role="alert" className="text-xs text-red-700">Use the format name@bank.</span>}
-                        </label>
-                      )}
-                      {method === id && id === "card" && (
-                        <div className="mt-3 grid max-w-sm grid-cols-2 gap-3 text-sm">
-                          <label className="col-span-2">Card number (demo)<input className="input mt-1 tnum" readOnly value="4242 4242 4242 4242" /></label>
-                          <label>Expiry<input className="input mt-1" readOnly value="12 / 30" /></label>
-                          <label>CVV<input className="input mt-1" readOnly value="•••" /></label>
-                        </div>
-                      )}
-                      {method === id && id === "netbanking" && (
-                        <label className="mt-3 block text-sm">Bank (demo)
-                          <select className="input mt-1 max-w-xs" value={bank} onChange={(e) => setBank(e.target.value)}>{BANKS.map((b) => <option key={b}>{b}</option>)}</select>
-                        </label>
-                      )}
-                    </div>
-                  ))}
-                </div>
-                <label className="flex items-start gap-2 rounded-lg border border-dashed border-stone-300 p-3 text-sm text-stone-700">
-                  <input className="mt-0.5" type="checkbox" checked={decline} onChange={(e) => setDecline(e.target.checked)} />
-                  <span><span className="font-medium">Demo control:</span> simulate a declined payment, to see how a failure looks. Nothing is charged and your cart stays.</span>
-                </label>
-                <button className="btn-ghost" onClick={() => setStep("address")}>← Back to delivery</button>
+                <h2 className="font-display text-xl font-bold">PayPal sandbox</h2>
+                <Notice>PayPal handles the payment details. You will approve this order in PayPal’s sandbox; no live money is used.</Notice>
+                <button className="btn-ghost" onClick={() => { keyRef.current = newKey(); setStep("address"); }}>← Back to delivery</button>
               </section>
             )}
 
@@ -305,20 +285,19 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
                   <div role="alert" className="space-y-2 rounded-lg border border-red-300 bg-red-50 p-3 text-sm text-red-800">
                     <p className="font-medium">Payment failed</p><p>{failure}</p>
                     <div className="flex flex-wrap gap-2">
-                      <button className="btn-ghost !py-1" onClick={() => { setDecline(false); setFailure(null); }}>Try again</button>
-                      <button className="btn-ghost !py-1" onClick={() => { setFailure(null); setStep("payment"); }}>Change payment method</button>
+                      <button className="btn-ghost !py-1" onClick={() => setFailure(null)}>Try PayPal again</button>
+                      {canRestartCheckout && <button className="btn-ghost !py-1" onClick={() => { keyRef.current = newKey(); setFailure(null); setCanRestartCheckout(false); setStep("cart"); }}>Review cart</button>}
                     </div>
                   </div>
                 )}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="card text-sm">
-                    <div className="flex justify-between"><h3 className="font-semibold">Deliver to</h3><button className="text-xs underline" onClick={() => setStep("address")}>Change</button></div>
+                    <div className="flex justify-between"><h3 className="font-semibold">Deliver to</h3><button className="text-xs underline" onClick={() => { keyRef.current = newKey(); setStep("address"); }}>Change</button></div>
                     <p className="mt-1">{addr.full_name}</p><p className="text-stone-600">{addr.line1}, {addr.city} {addr.pincode}</p><p className="text-stone-600">Mobile {addr.phone}</p>
                   </div>
                   <div className="card text-sm">
-                    <div className="flex justify-between"><h3 className="font-semibold">Pay with</h3><button className="text-xs underline" onClick={() => setStep("payment")}>Change</button></div>
-                    <p className="mt-1">{method === "upi" ? `UPI · ${upi}` : method === "card" ? "Demo card ending 4242" : `Net banking · ${bank}`}</p>
-                    {decline && <p className="text-xs text-amber-800">Decline simulation is on.</p>}
+                    <h3 className="font-semibold">Pay with</h3>
+                    <p className="mt-1">PayPal sandbox</p>
                   </div>
                 </div>
                 <ul className="divide-y divide-stone-200 rounded-xl border border-stone-200 bg-white text-sm">
@@ -327,7 +306,8 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
                   ))}
                 </ul>
                 <p className="text-xs text-stone-500">Parts arrive in My parts marked untested. Please test them before use.</p>
-                <button className="btn-ghost" onClick={() => setStep("payment")}>← Back to payment</button>
+                  <PayPalButtons onCreateOrder={createPayPalOrder} onApprove={capturePayPalOrder} onError={paypalError} />
+                  <button className="btn-ghost" onClick={() => setStep("payment")}>← Back to payment</button>
               </section>
             )}
           </div>
@@ -341,7 +321,7 @@ export default function Cart({ userId, userName, onNavigate, onChanged }: {
           <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center">
             <div className="mx-auto h-10 w-10 animate-spin rounded-full border-4 border-stone-200 border-t-emerald-600" />
             <p className="mt-4 font-display text-lg font-bold">Processing {money(preview?.total_cents ?? 0)}</p>
-            <p className="mt-1 text-sm text-stone-600">{["Contacting your (demo) bank…", "Confirming the payment…", "Adding the parts to your account…"][phase]}</p>
+            <p className="mt-1 text-sm text-stone-600">Confirming your PayPal sandbox payment and adding the parts to your account…</p>
             <p className="mt-3 text-xs text-stone-500">Please don’t close or refresh this page.</p>
           </div>
         </div>

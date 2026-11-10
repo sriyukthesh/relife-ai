@@ -3,7 +3,7 @@
 The price is a starting point, decided by code:
   1. median of at least two comparable active listings, if they exist
   2. otherwise a typical hobby-shop price for the category, discounted for untested parts.
-Base prices are rough placeholders in paise (1/100 rupee), not market data.
+Base prices are rough placeholders in cents (1/100 dollar), not market data.
 """
 from __future__ import annotations
 
@@ -12,18 +12,18 @@ from typing import Any
 
 from .. import catalog
 
-BASE_PRICE_PAISE: dict[str, int] = {
+BASE_PRICE_CENTS: dict[str, int] = {
     "resistor": 200, "potentiometer": 2500, "capacitor": 800, "led": 300,
     "transistor": 600, "diode": 200, "ic": 3000, "battery": 4000, "button": 500,
     "buzzer": 3000, "ldr": 1000, "microcontroller": 35000, "other": 2000,
 }
 UNTESTED_FACTOR = 0.8
-STEP = 50  # round to the nearest 50 paise
+STEP = 50  # round to the nearest 50 cents
 MIN_PRICE = 50
 
 
-def _round(paise: float) -> int:
-    return max(MIN_PRICE, int(round(paise / STEP)) * STEP)
+def _round(cents: float) -> int:
+    return max(MIN_PRICE, int(round(cents / STEP)) * STEP)
 
 
 def suggest_price(category: str, condition: str, peer_prices: list[int]) -> dict[str, Any]:
@@ -34,7 +34,7 @@ def suggest_price(category: str, condition: str, peer_prices: list[int]) -> dict
             "price_cents": mid, "low_cents": _round(peers[0]), "high_cents": _round(peers[-1]),
             "basis": f"Median of {len(peers)} similar listings on the marketplace.",
         }
-    base = BASE_PRICE_PAISE.get(category, BASE_PRICE_PAISE["other"])
+    base = BASE_PRICE_CENTS.get(category, BASE_PRICE_CENTS["other"])
     factor = 1.0 if condition == catalog.TESTED_OK else UNTESTED_FACTOR
     price = _round(base * factor)
     return {

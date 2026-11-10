@@ -1,0 +1,17 @@
+{
+  "name": "relife-bryntum-ui",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "setup:bryntum": "npm install @bryntum/gantt@npm:@bryntum/gantt-trial@latest @bryntum/scheduler@npm:@bryntum/scheduler-trial@latest --save-exact",
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^6.4.4"
+  },
+  "dependencies": {
+    "@bryntum/gantt": "npm:@bryntum/gantt-trial@7.3.8",
+    "@bryntum/scheduler": "npm:@bryntum/scheduler-trial@7.3.8"
+  }
+}

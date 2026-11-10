@@ -1,5 +1,6 @@
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -26,6 +27,12 @@ class Settings(BaseSettings):
     meta_api_key: str = Field("", validation_alias="MODEL_API_KEY")
     meta_base_url: str = "https://api.meta.ai/v1"
     muse_model: str = "muse-spark-1.3"
+
+    paypal_client_id: str = ""
+    paypal_client_secret: str = ""
+    paypal_currency: Literal["USD"] = "USD"
+    paypal_seller_email: str = ""
+    channel3_api_key: str = Field("", validation_alias="CHANNEL3_API_KEY")
 
     @property
     def cors_origin_list(self) -> list[str]:

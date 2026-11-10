@@ -263,7 +263,7 @@ class CopilotChatOut(BaseModel):
 
 
 # ---- cart and checkout ----
-PayMethod = Literal["upi", "card", "netbanking"]
+PayMethod = Literal["upi", "card", "netbanking", "paypal"]
 
 
 class CartLineIn(BaseModel):
@@ -306,12 +306,10 @@ class AddressIn(BaseModel):
     pincode: str = Field(pattern=r"^\d{6}$")
 
 
-class CheckoutIn(BaseModel):
+class PayPalOrderIn(BaseModel):
     lines: list[CartLineIn] = Field(min_length=1, max_length=30)
     address: AddressIn
-    method: PayMethod
-    idempotency_key: str = Field(min_length=8, max_length=64)  # a retry never pays twice
-    simulate_decline: bool = False  # demo switch to see a failed payment
+    idempotency_key: str = Field(min_length=8, max_length=64)
 
 
 class PaymentLineOut(BaseModel):

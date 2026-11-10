@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { api } from "../api";
 import { CategoryBars, WeeklyBars } from "../components/Charts";
-import { num, rupees, timeAgo, weight } from "../components/format";
+import { num, dollars, timeAgo, weight } from "../components/format";
 import { IconScan, IconSpark } from "../components/Icons";
 import { errText, ErrorBanner } from "../components/ui";
 import type { Tab } from "../nav";
@@ -116,7 +116,7 @@ export default function Dashboard({ user, onNavigate, onOpenCopilot }: {
           <Stage label="Reused in finished builds" value={p.parts_reused} format={num}
             sub={`${num(p.builds_completed)} builds completed`} />
           <Stage label="Resold to other makers" value={p.parts_resold} format={num}
-            sub={`${rupees(p.marketplace_volume_paise)} traded`} />
+            sub={`${dollars(p.marketplace_volume_cents)} traded`} />
           <Stage label="E-waste kept out of the bin" value={p.diverted_g_low} format={weight}
             sub={`Estimate: ${weight(p.diverted_g_low)} to ${weight(p.diverted_g_high)}`} />
         </ol>
@@ -167,7 +167,7 @@ export default function Dashboard({ user, onNavigate, onOpenCopilot }: {
               ["Makers", num(p.makers)],
               ["Open listings", num(p.active_listings)],
               ["Builds finished", num(p.builds_completed)],
-              ["Traded", rupees(p.marketplace_volume_paise)],
+              ["Traded", dollars(p.marketplace_volume_cents)],
             ].map(([k, v]) => (
               <div key={k}><dt className="text-xs text-stone-500">{k}</dt><dd className="font-display text-2xl font-bold tnum">{v}</dd></div>
             ))}

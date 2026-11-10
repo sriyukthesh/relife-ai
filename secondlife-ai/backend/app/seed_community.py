@@ -21,7 +21,7 @@ WEEKS = 12
 EMAIL = "maker{:02d}@secondlife.ai"
 PASSWORD = "demo1234"
 
-SALES = [  # category, label, specs, typical qty range, price in paise
+SALES = [  # category, label, specs, typical qty range, price in cents
     ("resistor", "220 ohm resistor", {"resistance_ohm": 220}, (5, 20), 150),
     ("resistor", "10k resistor", {"resistance_ohm": 10000}, (5, 20), 150),
     ("led", "Red LED", {"color": "red"}, (3, 12), 300),

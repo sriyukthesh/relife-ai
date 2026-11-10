@@ -9,11 +9,16 @@ import secrets
 from datetime import datetime
 from typing import Any, Iterable
 
-DELIVERY_FEE_CENTS = 4000            # ₹40 demo delivery fee
-FREE_DELIVERY_FROM_CENTS = 30000     # free from ₹300
+DELIVERY_FEE_CENTS = 4000            # $40 demo delivery fee
+FREE_DELIVERY_FROM_CENTS = 30000     # free from $300
 MAX_LINES = 30
 
-METHOD_LABELS = {"upi": "UPI", "card": "Credit / debit card", "netbanking": "Net banking"}
+METHOD_LABELS = {
+    "upi": "UPI",
+    "card": "Credit / debit card",
+    "netbanking": "Net banking",
+    "paypal": "PayPal sandbox",
+}
 
 
 def merge_lines(lines: Iterable[tuple[int, int]]) -> dict[int, int]:

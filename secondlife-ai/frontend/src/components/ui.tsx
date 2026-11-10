@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { ApiError } from "../api";
 import type { Condition } from "../types";
 
-export const money = (cents: number) => `₹${(cents / 100).toFixed(2)}`;
+export const money = (cents: number) => `\$${(cents / 100).toFixed(2)}`;
 
 export function errText(e: unknown): string {
   if (e instanceof ApiError) {

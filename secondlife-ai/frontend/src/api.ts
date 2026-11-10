@@ -1,7 +1,8 @@
 import type {
   Build, Catalog, CopilotAnswer, CopilotChat, ImpactStats, InspectResponse, InventoryIn, InventoryItem, Listing,
-  ListingSuggestion, Order, Address, CartLine, CartPreview, PayMethod, Payment, ProjectOffers, Recommendations, Token, User, Condition, Specs,
+  ListingSuggestion, Order, Address, CartLine, CartPreview, Payment, ProjectOffers, Recommendations, Token, User, Condition, Specs,
   TeardownAssessment, TestProcedure, ComponentTestResult, ResistorOption, LedResistorResult, BuildPhotoCheck,
+  Channel3Plan,
 } from "./types";
 
 const BASE: string = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
@@ -106,13 +107,20 @@ export const api = {
     req<Listing>("/marketplace/listings", { method: "POST", json: { item_id, quantity, price_cents, title } }),
   suggestListing: (item_id: number) => req<ListingSuggestion>(`/marketplace/suggest/${item_id}`),
   cancelListing: (id: number) => req<void>(`/marketplace/listings/${id}`, { method: "DELETE" }),
-  buy: (id: number, quantity: number) => req<Order>(`/marketplace/listings/${id}/buy`, { method: "POST", json: { quantity } }),
   orders: () => req<Order[]>("/marketplace/orders"),
 
   // cart + checkout (only the method name is sent, never card details)
   checkoutPreview: (lines: CartLine[]) => req<CartPreview>("/checkout/preview", { method: "POST", json: { lines } }),
-  pay: (p: { lines: CartLine[]; address: Address; method: PayMethod; idempotency_key: string; simulate_decline: boolean }) =>
-    req<Payment>("/checkout/pay", { method: "POST", json: p }),
+  paypalConfig: () => req<{ client_id: string; currency: string; seller_email: string; enabled: boolean; environment: "sandbox" }>("/checkout/paypal/config"),
+  createPayPalOrder: (body: { lines: CartLine[]; address: Address; idempotency_key: string }) =>
+    req<{ paypal_order_id: string; total: string; currency: string }>("/checkout/paypal/orders", { method: "POST", json: body }),
+  capturePayPalOrder: (orderId: string) =>
+    req<Payment>(`/checkout/paypal/orders/${encodeURIComponent(orderId)}/capture`, { method: "POST" }),
   payments: () => req<Payment[]>("/checkout/payments"),
   offersFor: (slug: string) => req<ProjectOffers>(`/marketplace/for-project/${slug}`),
+  channel3Plan: (slug: string, budget_usd: number) =>
+    req<Channel3Plan>(`/parts/channel3/${encodeURIComponent(slug)}`, {
+      method: "POST",
+      json: { budget_usd },
+    }),
 };

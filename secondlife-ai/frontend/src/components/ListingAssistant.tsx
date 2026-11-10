@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "../api";
 import type { Listing, ListingSuggestion } from "../types";
-import { rupees } from "./format";
+import { dollars } from "./format";
 import { IconCheck, IconTag } from "./Icons";
 import { ConditionBadge, errText, ErrorBanner, specLine } from "./ui";
 
@@ -36,7 +36,7 @@ export default function ListingAssistant({ itemId, onListed, onClose }: {
       <div className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-900">
         <IconCheck className="mt-0.5 shrink-0" />
         <div>
-          <p className="font-medium">Listed: {done.quantity} × {done.label} at {rupees(done.price_cents)} each.</p>
+          <p className="font-medium">Listed: {done.quantity} × {done.label} at {dollars(done.price_cents)} each.</p>
           <p className="text-xs">Buyers see it as untested until they test it themselves. Manage it under Marketplace.</p>
         </div>
       </div>
@@ -69,9 +69,9 @@ export default function ListingAssistant({ itemId, onListed, onClose }: {
             onChange={(e) => setQty(Math.min(sug.quantity_owned, Math.max(1, Number(e.target.value) || 1)))} disabled={!sug.can_list} />
           <span className="text-xs text-stone-500">of {sug.quantity_owned}</span>
         </label>
-        <label className="text-sm">Price each (₹)
+        <label className="text-sm">Price each ($)
           <input className="input mt-1 w-28" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} disabled={!sug.can_list} />
-          <span className="text-xs text-stone-500 tnum">Range {rupees(sug.price_low_cents)}–{rupees(sug.price_high_cents)}</span>
+          <span className="text-xs text-stone-500 tnum">Range {dollars(sug.price_low_cents)}–{dollars(sug.price_high_cents)}</span>
         </label>
       </div>
       <p className="text-xs text-stone-500">{sug.price_basis} It’s only a starting point; set your own price.</p>
@@ -80,7 +80,7 @@ export default function ListingAssistant({ itemId, onListed, onClose }: {
         <p className="mb-1 text-xs text-stone-500">How buyers will see it</p>
         <p className="font-medium">{title || sug.label}</p>
         <p className="text-xs text-stone-500">{specLine(sug.specs)} · {qty} available</p>
-        <div className="mt-1 flex items-center gap-2"><ConditionBadge condition={sug.condition} /><span className="tnum font-medium">{valid ? rupees(cents) : "—"}</span></div>
+        <div className="mt-1 flex items-center gap-2"><ConditionBadge condition={sug.condition} /><span className="tnum font-medium">{valid ? dollars(cents) : "—"}</span></div>
       </div>
 
       <div className="flex flex-wrap gap-2">
