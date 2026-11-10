@@ -9,6 +9,10 @@ from .database import Base, engine
 from .routers import auth, builds, checkout, copilot, inspect, inventory, marketplace, parts, projects, salvage, stats, workbench
 from timeline.router import mount_timeline_ui, router as timeline_router
 
+import os
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
@@ -55,3 +59,17 @@ def get_catalog():
         "spec_fields": catalog.SPEC_FIELDS,
         "conditions": list(catalog.CONDITIONS),
     }
+
+
+# Serve built React frontend (Render one-service deployment)
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+frontend_dist = os.path.join(REPO_ROOT, "frontend", "dist")
+if os.path.isdir(frontend_dist):
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        file_path = os.path.join(frontend_dist, full_path)
+        if os.path.exists(file_path) and os.path.isfile(file_path):
+            return FileResponse(file_path)
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
